@@ -26,8 +26,6 @@ class AdditionImpl extends AdditionPOA {
   }
 }   
 
-
-
 /*---------------------------------*/
     
      
