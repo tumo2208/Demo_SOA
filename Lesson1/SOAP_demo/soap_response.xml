@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <addResponse xmlns="http://example.com/soap">
+      <return>12</return>
+    </addResponse>
+  </soap:Body>
+</soap:Envelope>

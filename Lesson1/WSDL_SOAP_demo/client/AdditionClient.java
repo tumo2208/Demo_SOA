@@ -7,7 +7,7 @@ public class AdditionClient {
 
         // Get the port (interface to call remote methods)
         AdditionService port = serviceService.getAdditionServicePort();
-
+        
         // Call remote method
         int a = 5;
         int b = 7;
