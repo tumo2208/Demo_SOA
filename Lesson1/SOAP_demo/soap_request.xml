@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns2:add xmlns:ns2="http://example.com/soap">
+      <a>15</a>
+      <b>25</b>
+    </ns2:add>
+  </soap:Body>
+</soap:Envelope>
