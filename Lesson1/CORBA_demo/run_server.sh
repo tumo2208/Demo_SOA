@@ -1,6 +1,4 @@
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
 
-
-javac AdditionService.java
-java AdditionService
+java StartServer -ORBInitialPort 1050 -ORBInitialHost localhost&

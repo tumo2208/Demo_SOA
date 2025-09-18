@@ -8,6 +8,11 @@
     ./setup.sh
 ```
 
+Kill ORB process
+```bash
+lsof -i :1049
+```
+
 ## 1. Initialize the Object Request Broker (ORB)
 ```bash
 idlj -fall Addition.idl

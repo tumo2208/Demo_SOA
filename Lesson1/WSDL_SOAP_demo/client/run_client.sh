@@ -1,14 +1,8 @@
-#!/bin/bash
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
 
 WSDL_URL=http://localhost:8080/addition?wsdl
 PACKAGE=com.example.client
-
-# Wait until WSDL is available
-until curl -s $WSDL_URL > /dev/null; do
-    sleep 1
-done
 
 echo "WSDL available!"
 
