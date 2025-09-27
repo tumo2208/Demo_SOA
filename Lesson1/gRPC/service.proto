@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+service StudentLMS{
+    rpc GetAllGrade (AllGradeRequest) returns (AllGradeReply);
+    rpc GetStat (StatRequest) returns (StatReply);
+}
+
+message AllGradeRequest {
+    string student_id = 1;    
+}
+
+message StatRequest {
+    string student_id = 1;
+}
+
+message Grade {
+  string subject = 1;
+  float score = 2;
+}
+
+message AllGradeReply {
+    repeated Grade grades = 1;
+}
+
+message StatReply {
+    float mean = 1;
+    int32 credits = 2;
+}
+
+

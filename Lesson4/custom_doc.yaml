@@ -1,0 +1,172 @@
+openapi: 3.1.0
+info:
+  title: Book API
+  version: 1.0.0
+  description: API for managing books with metadata and content
+paths:
+  /books/:
+    get:
+      summary: List all books
+      responses:
+        '200':
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+  /books/by-tag/{tag}:
+    get:
+      summary: Get books by tag
+      parameters:
+      - name: tag
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Books with the specified tag
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+        '404':
+          description: No books found with this tag
+  /books/by-name/{name}:
+    get:
+      summary: Get books by name
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Books with the specified name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+        '404':
+          description: No books found with this name
+  /books/add:
+    post:
+      summary: Add a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookCreate'
+      responses:
+        '200':
+          description: Book added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookMetadata'
+        '400':
+          description: Book with this ID already exists
+  /books/update/{id}:
+    put:
+      summary: Update a book
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookUpdate'
+      responses:
+        '200':
+          description: Book updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookMetadata'
+        '404':
+          description: Book not found
+  /books/remove/{id}:
+    delete:
+      summary: Remove a book
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Book removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    BookMetadata:
+      type: object
+      required:
+      - id
+      - name
+      - tags
+      - description
+      - author
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        author:
+          type: string
+    BookContent:
+      type: object
+      required:
+      - id
+      - content
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+    BookCreate:
+      type: object
+      required:
+      - metadata
+      - content
+      properties:
+        metadata:
+          $ref: '#/components/schemas/BookMetadata'
+        content:
+          $ref: '#/components/schemas/BookContent'
+    BookUpdate:
+      type: object
+      required:
+      - updated
+      - content
+      properties:
+        updated:
+          $ref: '#/components/schemas/BookMetadata'
+        content:
+          $ref: '#/components/schemas/BookContent'

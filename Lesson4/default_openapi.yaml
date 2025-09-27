@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /books/:
+    get:
+      summary: List Books
+      operationId: list_books_books__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+                type: array
+                title: Response List Books Books  Get
+  /books/by-tag/{tag}:
+    get:
+      summary: Get Books By Tag
+      operationId: get_books_by_tag_books_by_tag__tag__get
+      parameters:
+      - name: tag
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tag
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+                title: Response Get Books By Tag Books By Tag  Tag  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /books/by-name/{name}:
+    get:
+      summary: Get Books By Name
+      operationId: get_books_by_name_books_by_name__name__get
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+                title: Response Get Books By Name Books By Name  Name  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /books/add:
+    post:
+      summary: Add Book
+      operationId: add_book_books_add_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_add_book_books_add_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /books/update/{id}:
+    put:
+      summary: Update Book
+      operationId: update_book_books_update__id__put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_update_book_books_update__id__put'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookMetadata'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /books/remove/{id}:
+    delete:
+      summary: Remove Book
+      operationId: remove_book_books_remove__id__delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Body_add_book_books_add_post:
+      properties:
+        metadata:
+          $ref: '#/components/schemas/BookMetadata'
+        content:
+          $ref: '#/components/schemas/BookContent'
+      type: object
+      required:
+      - metadata
+      - content
+      title: Body_add_book_books_add_post
+    Body_update_book_books_update__id__put:
+      properties:
+        updated:
+          $ref: '#/components/schemas/BookMetadata'
+        content:
+          $ref: '#/components/schemas/BookContent'
+      type: object
+      required:
+      - updated
+      - content
+      title: Body_update_book_books_update__id__put
+    BookContent:
+      properties:
+        id:
+          type: integer
+          title: Id
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - id
+      - content
+      title: BookContent
+    BookMetadata:
+      properties:
+        id:
+          type: integer
+          title: Id
+        name:
+          type: string
+          title: Name
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        description:
+          type: string
+          title: Description
+        author:
+          type: string
+          title: Author
+      type: object
+      required:
+      - id
+      - name
+      - tags
+      - description
+      - author
+      title: BookMetadata
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
