@@ -1,79 +1,94 @@
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import javax.xml.soap.*;
+import javax.xml.namespace.QName;
+import java.io.IOException;
 
 public class AdditionClient {
     
-    private static String readSOAPRequestFromFile(String filename) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(filename)));
-    }
-    
     public static void main(String[] args) {
         try {
-            System.out.println("Reading SOAP request from file...");
+            // Create SOAP Connection
+            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+            SOAPConnection soapConnection = soapConnectionFactory.createConnection();
             
-            // Read SOAP request from file
-            String soapRequest = readSOAPRequestFromFile("soap_request.xml");
-            System.out.println("SOAP Request loaded:\n" + soapRequest);
+            // Create SOAP Message
+            MessageFactory messageFactory = MessageFactory.newInstance();
+            SOAPMessage soapMessage = messageFactory.createMessage();
             
-            // Create connection
-            URL url = new URL("http://localhost:8080/addition");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // Get SOAP Part and Envelope
+            SOAPPart soapPart = soapMessage.getSOAPPart();
+            SOAPEnvelope envelope = soapPart.getEnvelope();
             
-            // Set request properties
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
-            connection.setRequestProperty("SOAPAction", "");
-            connection.setDoOutput(true);
+            // Remove default namespace prefix and set custom one
+            envelope.removeNamespaceDeclaration(envelope.getPrefix());
+            envelope.addNamespaceDeclaration("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+            envelope.setPrefix("soap");
             
-            System.out.println("\nSending SOAP request...");
+            // Get SOAP Header and Body
+            SOAPHeader soapHeader = envelope.getHeader();
+            SOAPBody soapBody = envelope.getBody();
+            soapHeader.setPrefix("soap");
+            soapBody.setPrefix("soap");
             
-            // Send request
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(soapRequest);
-            writer.flush();
-            writer.close();
+            // Add content to SOAP Body
+            QName addQName = new QName("http://example.com/soap", "add", "ns2");
+            SOAPBodyElement addElement = soapBody.addBodyElement(addQName);
             
-            // Check response code
-            int responseCode = connection.getResponseCode();
-            System.out.println("Response code: " + responseCode);
+            // Add parameters
+            SOAPElement aElement = addElement.addChildElement("a");
+            aElement.addTextNode("15");
             
-            // Read response
-            BufferedReader reader;
-            if (responseCode == 200) {
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            } else {
-                reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            }
+            SOAPElement bElement = addElement.addChildElement("b");
+            bElement.addTextNode("25");
             
-            String line;
-            StringBuilder response = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                response.append(line + "\n");
-            }
-            reader.close();
+            // Save and print the request
+            soapMessage.saveChanges();
+            System.out.println("SOAP Request:");
+            soapMessage.writeTo(System.out);
+            System.out.println("\n");
             
+            // Send SOAP Message to SOAP Server
+            String url = "http://localhost:8080/addition";
+            System.out.println("Sending SOAP request to: " + url);
+            SOAPMessage soapResponse = soapConnection.call(soapMessage, url);
+            
+            // Print the SOAP Response
             System.out.println("\nSOAP Response:");
-            System.out.println(response.toString());
+            soapResponse.writeTo(System.out);
+            System.out.println("\n");
             
-            // Try to extract the result
-            String responseStr = response.toString();
-            if (responseStr.contains("<return>")) {
-                int start = responseStr.indexOf("<return>") + 8;
-                int end = responseStr.indexOf("</return>");
-                if (end > start) {
-                    String result = responseStr.substring(start, end);
-                    System.out.println("\nExtracted Result: " + result);
+            // Extract the result using SOAP API
+            SOAPBody responseBody = soapResponse.getSOAPBody();
+            
+            // Check for SOAP Fault
+            if (responseBody.hasFault()) {
+                SOAPFault fault = responseBody.getFault();
+                System.err.println("SOAP Fault: " + fault.getFaultString());
+            } else {
+                // Navigate to the return element
+                // Method 1: Using QName
+                QName returnQName = new QName("http://example.com/soap", "return");
+                SOAPElement addResponse = (SOAPElement) responseBody.getFirstChild();
+                
+                // Iterate through child elements to find 'return'
+                java.util.Iterator<SOAPElement> iterator = addResponse.getChildElements();
+                while (iterator.hasNext()) {
+                    SOAPElement element = iterator.next();
+                    if (element.getLocalName().equals("return")) {
+                        String result = element.getTextContent();
+                        System.out.println("\nExtracted Result: " + result);
+                        break;
+                    }
                 }
             }
             
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: soap_request.xml file not found!");
-            System.out.println("Please create soap_request.xml file with your SOAP request.");
-        } catch (Exception e) {
-            System.out.println("Error calling SOAP service:");
+            // Close connection
+            soapConnection.close();
+            
+        } catch (SOAPException e) {
+            System.err.println("SOAP Exception:");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("IO Exception:");
             e.printStackTrace();
         }
     }
